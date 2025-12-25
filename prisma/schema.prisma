@@ -1,0 +1,142 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+  
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String   // hashed
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/* ===== TECH/TOOLS ===== */
+
+model Technology {
+  id          String   @id @default(cuid())
+  name        String   @unique // "Next.js", "TypeScript", "React"
+  slug        String   @unique // "nextjs", "typescript", "react"
+  iconUrl     String   // "https://cdn.simpleicons.org/nextdotjs"
+  category    String?  // "Frontend", "Backend", "Database", "Tool"
+  description String?  // Optional description
+  order       Int      @default(0)
+  
+  // Relations
+  projects    ProjectTechnology[]
+  experiences ExperienceTechnology[]
+  skills      Skill[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+/* ===== CONTENT ===== */
+
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  summary     String
+  description String
+  role        String
+  imageUrl    String?
+  repoUrl     String?
+  liveUrl     String?
+  featured    Boolean  @default(false)
+  published   Boolean  @default(true)
+  order       Int      @default(0)
+  
+  // Relations
+  technologies ProjectTechnology[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Join table for Project <-> Technology (many-to-many)
+model ProjectTechnology {
+  id           String     @id @default(cuid())
+  projectId    String
+  technologyId String
+  order        Int        @default(0) // Order of tech in this specific project
+  
+  project      Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  technology   Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
+  
+  @@unique([projectId, technologyId])
+  @@index([projectId])
+  @@index([technologyId])
+}
+
+model Experience {
+  id          String   @id @default(cuid())
+  company     String
+  companyLogo String?
+  position    String
+  description String
+  startDate   DateTime
+  endDate     DateTime?
+  order       Int      @default(0)
+  published   Boolean  @default(true)
+  
+  // Relations
+  technologies ExperienceTechnology[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Join table for Experience <-> Technology (many-to-many)
+model ExperienceTechnology {
+  id           String     @id @default(cuid())
+  experienceId String
+  technologyId String
+  order        Int        @default(0)
+  
+  experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  technology   Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
+  
+  @@unique([experienceId, technologyId])
+  @@index([experienceId])
+  @@index([technologyId])
+}
+
+model Skill {
+  id           String     @id @default(cuid())
+  technologyId String
+  level        Int        // 1–5
+  order        Int        @default(0)
+  visible      Boolean    @default(true)
+  
+  // Relations
+  technology   Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
+  
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  
+  @@unique([technologyId])
+  @@index([technologyId])
+}
+
+model ContentBlock {
+  id        String   @id @default(cuid())
+  key       String   @unique // "hero", "about", "footer"
+  title     String?
+  content   String   // markdown
+  published Boolean  @default(true)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
