@@ -1,6 +1,7 @@
 "use server";
 import { prisma } from "@/lib/db";
 import { CreateProjectInput } from "@/schemas";
+import { revalidatePath } from "next/cache";
 export async function listProjects() {
   const projects = await prisma.project.findMany({
     omit: {
@@ -128,6 +129,40 @@ export async function deleteProject(slug: string) {
   await prisma.project.delete({
     where: { slug },
   });
-
+  revalidatePath("/admin");
   return { success: true };
+}
+
+export async function getProjectBySlug(slug: string) {
+  const project = await prisma.project.findFirst({
+    where: { slug },
+    include: {
+      technologies: {
+        orderBy: { order: "asc" },
+        omit: {
+          order: true,
+        },
+        include: {
+          technology: {
+            omit: {
+              createdAt: true,
+              updatedAt: true,
+              order: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!project) {
+    return null;
+  }
+
+  const { technologies, ...projectWithoutTech } = project;
+
+  return {
+    ...projectWithoutTech,
+    technologies: technologies.map((t) => t.technology.id),
+  };
 }

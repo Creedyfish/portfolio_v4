@@ -21,13 +21,36 @@ export async function createSkill(data: SkillInput) {
       },
     });
 
-    revalidatePath("/skills"); // Adjust path as needed
     return { success: true, data: skill };
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { success: false, error: error };
     }
     return { success: false, error: "Failed to create skill" };
+  }
+}
+
+export async function upsertSkill(data: SkillInput) {
+  try {
+    const validated = skillSchema.parse(data);
+
+    const skill = await prisma.skill.upsert({
+      where: {
+        technologyId: validated.technologyId, // or use a unique constraint
+      },
+      update: validated,
+      create: validated,
+      include: {
+        technology: true,
+      },
+    });
+
+    return { success: true, data: skill };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { success: false, error };
+    }
+    return { success: false, error: "Failed to upsert skill" };
   }
 }
 
@@ -119,7 +142,7 @@ export async function deleteSkill(id: string) {
       where: { id },
     });
 
-    revalidatePath("/skills"); // Adjust path as needed
+    revalidatePath("/admin/skills"); // Adjust path as needed
     return { success: true };
   } catch (_error) {
     return { success: false, error: "Failed to delete skill" };

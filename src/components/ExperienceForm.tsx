@@ -51,12 +51,8 @@ export function ExperienceForm({ mode, id, initialData }: ExperienceFormProps) {
       position: initialData?.position ?? "",
       description: initialData?.description ?? "",
       contributions: initialData?.contributions ?? [],
-      startDate: initialData?.startDate
-        ? initialData.startDate.toString().split("T")[0] // Date to YYYY-MM-DD string
-        : new Date().toISOString().split("T")[0],
-      endDate: initialData?.endDate
-        ? initialData.endDate.toString().split("T")[0]
-        : null,
+       startDate: initialData?.startDate ?? "",
+  endDate: initialData?.endDate ?? "",
       order: initialData?.order ?? 0,
       published: initialData?.published ?? false,
     },

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const experienceBaseSchema = {
   company: z.string().min(1, { message: "Company name cannot be empty" }),
-  companyLogo: z.string().url().optional(),
+  companyLogo: z.string().nullish(),
   position: z.string().min(1, { message: "Position cannot be empty" }),
   description: z.string().min(1, { message: "Description cannot be empty" }),
   contributions: z.array(z.string()).optional(),

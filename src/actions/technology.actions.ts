@@ -56,11 +56,11 @@ export async function updateTechnology(
   return technology;
 }
 
-export async function deleteTechnology(slug: string) {
+export async function deleteTechnology(id: string) {
   await prisma.technology.delete({
-    where: { slug },
+    where: { id },
   });
 
-  revalidatePath("/technologies");
+  revalidatePath("/admin/technologies");
   return { success: true };
 }

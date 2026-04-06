@@ -42,6 +42,7 @@ export function ProjectForm({
     getValues,
     control,
     reset,
+    watch,
     formState: { errors },
   } = useForm<ProjectFormInput>({
     resolver: zodResolver(createProjectSchema),
@@ -51,14 +52,15 @@ export function ProjectForm({
       description: initialData?.description ?? "",
       summary: initialData?.summary ?? "",
       role: initialData?.role ?? "",
-      imageUrl: initialData?.imageUrl ?? "",
-      repoUrl: initialData?.repoUrl ?? "",
-      liveUrl: initialData?.liveUrl ?? "",
+      imageUrl: initialData?.imageUrl ?? undefined, // convert: null → undefined
+      repoUrl: initialData?.repoUrl ?? undefined, // convert: null → undefined
+      liveUrl: initialData?.liveUrl ?? undefined, // convert: null → undefined
       featured: initialData?.featured ?? false,
       order: initialData?.order ?? 0,
       technologyIds: initialData?.technologyIds ?? [],
     },
   });
+  console.log(watch());
   const router = useRouter();
   const onSubmit = async (data: ProjectFormInput) => {
     try {
