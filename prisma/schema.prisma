@@ -76,7 +76,7 @@ model Technology {
   iconUrl     String   // "https://cdn.simpleicons.org/nextdotjs"
   category    String?  // "Frontend", "Backend", "Database", "Tool"
   description String?  // Optional description
-  order       Int      @default(0)
+  order       Int      @unique
   
   // Relations
   projects    ProjectTechnology[]
@@ -101,7 +101,7 @@ model Project {
   liveUrl     String?
   featured    Boolean  @default(false)
   published   Boolean  @default(true)
-  order       Int      @default(0)
+  order       Int      @unique
   
   // Relations
   technologies ProjectTechnology[]

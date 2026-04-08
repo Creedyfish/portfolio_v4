@@ -51,8 +51,8 @@ export function ExperienceForm({ mode, id, initialData }: ExperienceFormProps) {
       position: initialData?.position ?? "",
       description: initialData?.description ?? "",
       contributions: initialData?.contributions ?? [],
-       startDate: initialData?.startDate ?? "",
-  endDate: initialData?.endDate ?? "",
+      startDate: initialData?.startDate ?? "",
+      endDate: initialData?.endDate ?? "",
       order: initialData?.order ?? 0,
       published: initialData?.published ?? false,
     },
@@ -68,7 +68,7 @@ export function ExperienceForm({ mode, id, initialData }: ExperienceFormProps) {
         ...data,
         contributions,
       });
-
+      console.log(id);
       if (mode === "create") {
         await createExperience(parsed);
         reset();

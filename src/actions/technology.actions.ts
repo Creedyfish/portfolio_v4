@@ -5,16 +5,29 @@ import { prisma } from "@/lib/db";
 import { CreateTechnologyInput, UpdateTechnologyInput } from "@/schemas";
 
 export async function createTechnology(data: CreateTechnologyInput) {
-  const technology = await prisma.technology.create({
-    data,
-    omit: {
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
+  return prisma.$transaction(async (tx) => {
+    const insertOrder = data.order ?? (await tx.technology.count()) + 1;
 
-  revalidatePath("/technologies");
-  return technology;
+    // Step 1: push affected rows into temporary space
+    await tx.technology.updateMany({
+      where: { order: { gte: insertOrder } },
+      data: { order: { increment: 1000000 } },
+    });
+
+    // Step 2: normalize back down
+    await tx.technology.updateMany({
+      where: { order: { gte: insertOrder + 1000000 } },
+      data: { order: { decrement: 1000000 - 1 } },
+    });
+
+    // Step 3: insert
+    return tx.technology.create({
+      data: {
+        ...data,
+        order: insertOrder,
+      },
+    });
+  });
 }
 
 export async function listTechnologies() {
@@ -41,26 +54,61 @@ export async function updateTechnology(
   slug: string,
   data: UpdateTechnologyInput,
 ) {
-  const technology = await prisma.technology.update({
-    where: { slug },
-    data,
-    omit: {
-      id: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
+  return prisma.$transaction(async (tx) => {
+    const existing = await tx.technology.findUnique({
+      where: { slug },
+      select: { order: true },
+    });
 
-  revalidatePath("/technologies");
-  revalidatePath(`/technologies/${slug}`);
-  return technology;
+    if (!existing) throw new Error("Technology not found");
+
+    const oldOrder = existing.order;
+    const newOrder = data.order;
+
+    if (newOrder !== undefined && newOrder !== oldOrder) {
+      const direction = newOrder < oldOrder ? 1 : -1;
+
+      const start = Math.min(oldOrder, newOrder);
+      const end = Math.max(oldOrder, newOrder);
+
+      await tx.technology.updateMany({
+        where: {
+          order: {
+            gte: start,
+            lte: end,
+          },
+        },
+        data: {
+          order: {
+            increment: direction,
+          },
+        },
+      });
+    }
+
+    return tx.technology.update({
+      where: { slug },
+      data,
+    });
+  });
 }
 
 export async function deleteTechnology(id: string) {
-  await prisma.technology.delete({
-    where: { id },
+  await prisma.$transaction(async (tx) => {
+    const tech = await tx.technology.delete({
+      where: { id },
+      select: { order: true },
+    });
+
+    await tx.technology.updateMany({
+      where: {
+        order: { gt: tech.order },
+      },
+      data: {
+        order: { decrement: 1 },
+      },
+    });
   });
 
-  revalidatePath("/admin/technologies");
   return { success: true };
 }

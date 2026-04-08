@@ -2,8 +2,12 @@
 import { prisma } from "@/lib/db";
 import { CreateProjectInput } from "@/schemas";
 import { revalidatePath } from "next/cache";
+
 export async function listProjects() {
   const projects = await prisma.project.findMany({
+    orderBy: {
+      order: "asc",
+    },
     omit: {
       id: true,
       createdAt: true,
@@ -12,9 +16,7 @@ export async function listProjects() {
     include: {
       technologies: {
         orderBy: { order: "asc" },
-        omit: {
-          order: true,
-        },
+        omit: { order: true },
         include: {
           technology: {
             omit: {
@@ -35,101 +37,144 @@ export async function listProjects() {
 }
 
 export async function createProject(data: CreateProjectInput) {
-  const { technologyIds, ...projectData } = data;
+  const { technologyIds, order, ...projectData } = data;
 
-  const project = await prisma.project.create({
-    data: {
-      ...projectData,
-      ...(technologyIds && {
-        technologies: {
-          create: technologyIds.map((techId, index) => ({
-            technologyId: techId,
-            order: index,
-          })),
-        },
-      }),
-    },
-    include: {
-      technologies: {
-        orderBy: { order: "asc" },
-        omit: {
-          order: true,
-        },
-        include: {
-          technology: {
-            omit: {
-              createdAt: true,
-              updatedAt: true,
-              order: true,
-            },
+  return await prisma.$transaction(async (tx) => {
+    // shift existing
+    if (order !== undefined) {
+      await tx.project.updateMany({
+        where: {
+          order: {
+            gte: order,
           },
         },
-      },
-    },
-  });
-  const { technologies, ...projectWithoutTech } = project;
+        data: {
+          order: {
+            increment: 1,
+          },
+        },
+      });
+    }
 
-  return {
-    ...projectWithoutTech,
-    technologies: technologies.map((t) => t.technology),
-  };
+    const project = await tx.project.create({
+      data: {
+        ...projectData,
+        order: order ?? 0,
+        ...(technologyIds && {
+          technologies: {
+            create: technologyIds.map((techId, index) => ({
+              technologyId: techId,
+              order: index,
+            })),
+          },
+        }),
+      },
+      include: {
+        technologies: {
+          orderBy: { order: "asc" },
+          include: { technology: true },
+        },
+      },
+    });
+
+    return project;
+  });
 }
 
 export async function updateProject(slug: string, data: CreateProjectInput) {
-  const { technologyIds, ...updateData } = data;
+  const { technologyIds, order: newOrder, ...updateData } = data;
 
-  // If updating technologies, delete old ones and create new ones
-  if (technologyIds) {
-    await prisma.projectTechnology.deleteMany({
-      where: { project: { slug } },
+  return await prisma.$transaction(async (tx) => {
+    const existing = await tx.project.findUnique({
+      where: { slug },
+      select: { order: true },
     });
-  }
 
-  const project = await prisma.project.update({
-    where: { slug },
-    data: {
-      ...updateData,
-      ...(technologyIds && {
-        technologies: {
-          create: technologyIds.map((techId, index) => ({
-            technologyId: techId,
-            order: index,
-          })),
-        },
-      }),
-    },
-    include: {
-      technologies: {
-        orderBy: { order: "asc" },
-        omit: {
-          order: true,
-        },
-        include: {
-          technology: {
-            omit: {
-              createdAt: true,
-              updatedAt: true,
-              order: true,
+    if (!existing) throw new Error("Project not found");
+
+    const oldOrder = existing.order;
+
+    if (newOrder !== undefined && newOrder !== oldOrder) {
+      if (newOrder < oldOrder) {
+        // move up: shift others down
+        await tx.project.updateMany({
+          where: {
+            order: {
+              gte: newOrder,
+              lt: oldOrder,
             },
           },
+          data: {
+            order: { increment: 1 },
+          },
+        });
+      } else {
+        // move down: shift others up
+        await tx.project.updateMany({
+          where: {
+            order: {
+              gt: oldOrder,
+              lte: newOrder,
+            },
+          },
+          data: {
+            order: { decrement: 1 },
+          },
+        });
+      }
+    }
+
+    if (technologyIds) {
+      await tx.projectTechnology.deleteMany({
+        where: { project: { slug } },
+      });
+    }
+
+    const project = await tx.project.update({
+      where: { slug },
+      data: {
+        ...updateData,
+        ...(newOrder !== undefined && { order: newOrder }),
+        ...(technologyIds && {
+          technologies: {
+            create: technologyIds.map((techId, index) => ({
+              technologyId: techId,
+              order: index,
+            })),
+          },
+        }),
+      },
+      include: {
+        technologies: {
+          orderBy: { order: "asc" },
+          include: { technology: true },
         },
       },
-    },
+    });
+
+    return project;
   });
-
-  const { technologies, ...projectWithoutTech } = project;
-
-  return {
-    ...projectWithoutTech,
-    technologies: technologies.map((t) => t.technology),
-  };
 }
 
 export async function deleteProject(slug: string) {
-  await prisma.project.delete({
-    where: { slug },
+  await prisma.$transaction(async (tx) => {
+    const project = await tx.project.delete({
+      where: { slug },
+      select: { order: true },
+    });
+
+    await tx.project.updateMany({
+      where: {
+        order: {
+          gt: project.order,
+        },
+      },
+      data: {
+        order: { decrement: 1 },
+      },
+    });
   });
-  revalidatePath("/admin");
+
   return { success: true };
 }
 
