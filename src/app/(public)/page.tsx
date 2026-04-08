@@ -1,27 +1,24 @@
-import { auth } from "@/auth";
-import { listProjects } from "@/actions/project.actions";
+import { prisma } from "@/lib/db";
+import HeroMenu from "@/features/landing/components/HeroMenu";
 
-export default async function Home() {
-  const projects = await listProjects();
-  const session = await auth();
-  console.log(projects);
+export const revalidate = 60; // revalidate every 60s
+
+async function getHeroContent() {
+  const block = await prisma.contentBlock.findUnique({
+    where: { key: "hero" },
+  });
+  return block;
+}
+
+export default async function HomePage() {
+  const hero = await getHeroContent();
+
+  const lore =
+    hero?.content ?? "I create digital experiences one code at a time.";
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      {session && <div>logged in</div>}
-      {projects[0].technologies[0].name}
-      {/* {listProjects.map((project)=><div></div>)} */}
-      {/* {!session ? (
-        <ProjectsForm />
-      ) : (
-        <form
-          action={async () => {
-            "use server";
-            await signOut();
-          }}
-        >
-          <button type="submit">Sign Out</button>
-        </form>
-      )} */}
-    </div>
+    <main className="flex min-h-screen items-center justify-center bg-[#050810] p-4">
+      <HeroMenu lore={lore} />
+    </main>
   );
 }
