@@ -1,24 +1,54 @@
 import { prisma } from "@/lib/db";
-import HeroMenu from "@/features/landing/components/HeroMenu";
-
-export const revalidate = 60; // revalidate every 60s
+import ParallaxScene from "@/features/landing/components/ParallaxScene";
+import { Suspense } from "react";
+import LoadingState from "@/features/landing/components/LoadingState";
+import AboutContent from "@/features/landing/components/AboutContent";
+import ProjectsContent from "@/features/landing/components/ProjectsContent";
+import SkillsContent from "@/features/landing/components/SkillsContent";
+import ExperienceContent from "@/features/landing/components/ExperienceContent";
+import ContactContent from "@/features/landing/components/ContactContent";
+export const revalidate = 60;
 
 async function getHeroContent() {
-  const block = await prisma.contentBlock.findUnique({
-    where: { key: "hero" },
-  });
-  return block;
+  return prisma.contentBlock.findUnique({ where: { key: "hero" } });
 }
 
 export default async function HomePage() {
   const hero = await getHeroContent();
-
   const lore =
     hero?.content ?? "I create digital experiences one code at a time.";
 
+  const contentMap: Record<string, React.ReactNode> = {
+    about: (
+      <Suspense fallback={<LoadingState />}>
+        <AboutContent />
+      </Suspense>
+    ),
+    projects: (
+      <Suspense fallback={<LoadingState />}>
+        <ProjectsContent />
+      </Suspense>
+    ),
+    skills: (
+      <Suspense fallback={<LoadingState />}>
+        <SkillsContent />
+      </Suspense>
+    ),
+    experience: (
+      <Suspense fallback={<LoadingState />}>
+        <ExperienceContent />
+      </Suspense>
+    ),
+    contact: (
+      <Suspense fallback={<LoadingState />}>
+        <ContactContent />
+      </Suspense>
+    ),
+  };
+
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#050810] p-4">
-      <HeroMenu lore={lore} />
+    <main className="h-svh overflow-hidden bg-[#050810]">
+      <ParallaxScene lore={lore} contentMap={contentMap} />
     </main>
   );
 }

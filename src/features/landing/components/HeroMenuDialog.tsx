@@ -15,6 +15,8 @@ import ProjectsContent from "./ProjectsContent";
 import SkillsContent from "./SkillsContent";
 import ContactContent from "./ContactContent";
 import ExperienceContent from "./ExperienceContent";
+import { Suspense } from "react";
+import LoadingState from "./LoadingState";
 
 // ── Shared primitives ─────────────────────────────────────────────
 function GlowLine() {
@@ -84,16 +86,16 @@ function ModalShell({
         }}
       />
       <div className="relative z-10">
-        {/* Header */}
-        <div className="flex items-center justify-between gap-4 border-b border-[#080f1e] px-6 py-4">
+        {/* Header — slides in slightly delayed */}
+        <div
+          className="animate-in slide-in-from-top-2 fade-in flex items-center justify-between gap-4 border-b border-[#080f1e] px-6 py-4 duration-300"
+          style={{ animationDelay: "100ms", animationFillMode: "both" }}
+        >
           <div className="flex items-center gap-3">
             <div className="flex size-9 shrink-0 items-center justify-center rounded-md border border-[#22d3ee] bg-[#0a1a2e]">
               <Icon strokeWidth={1.5} className="size-4 text-[#22d3ee]" />
             </div>
             <div>
-              {/* <p className="font-pixel text-[7px] tracking-[0.2em] text-[#152535] uppercase">
-                — {label} —
-              </p> */}
               <Heading className="font-cinzel text-base font-bold text-[#e8e0d0]">
                 {label}
               </Heading>
@@ -109,8 +111,12 @@ function ModalShell({
             />
           </Button>
         </div>
-        {/* Body */}
-        <div className="scrollbar-thin scrollbar-track-[#040710] scrollbar-thumb-[#122030] h-[calc(90vh-72px)] overflow-y-auto">
+
+        {/* Body — slides in after header */}
+        <div
+          className="animate-in slide-in-from-bottom-3 fade-in scrollbar-thin scrollbar-track-[#040710] scrollbar-thumb-[#122030] h-[calc(90vh-72px)] overflow-y-auto duration-400"
+          style={{ animationDelay: "180ms", animationFillMode: "both" }}
+        >
           {children}
         </div>
       </div>
@@ -119,21 +125,8 @@ function ModalShell({
 }
 
 // ── Modal content router ──────────────────────────────────────────
-function ModalContent({ id }: { id: string }) {
-  switch (id) {
-    case "about":
-      return <AboutContent />;
-    case "projects":
-      return <ProjectsContent />;
-    case "skills":
-      return <SkillsContent />;
-    case "experience":
-      return <ExperienceContent />;
-    case "contact":
-      return <ContactContent />;
-    default:
-      return null;
-  }
+function ModalContent({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
 }
 
 // ── Single menu row ───────────────────────────────────────────────
@@ -142,11 +135,13 @@ export default function MenuRow({
   label,
   desc,
   Icon,
+  content,
 }: {
   id: string;
   label: string;
   desc: string;
   Icon: LucideIcon;
+  content: React.ReactNode;
 }) {
   return (
     <DialogTrigger>
@@ -178,12 +173,12 @@ export default function MenuRow({
         </span>
       </Button>
 
-      <ModalOverlay className="entering:animate-in entering:fade-in exiting:animate-out exiting:fade-out fixed inset-0 z-50 flex items-center justify-center bg-[rgba(5,8,16,0.88)] backdrop-blur-sm duration-200">
-        <Modal className="entering:animate-in entering:zoom-in-95 entering:fade-in entering:slide-in-from-bottom-4 exiting:animate-out exiting:zoom-out-95 exiting:fade-out relative h-[90vh] w-[92vw] max-w-none overflow-hidden rounded-xl border border-[#1a1a2e] bg-[#050810] shadow-[0_0_80px_rgba(34,211,238,0.05)] duration-200">
+      <ModalOverlay className="entering:animate-in entering:fade-in exiting:animate-out exiting:fade-out fixed inset-0 z-50 flex items-center justify-center bg-[rgba(5,8,16,0.88)] backdrop-blur-sm duration-300">
+        <Modal className="entering:animate-in entering:slide-in-from-right-8 entering:fade-in exiting:animate-out exiting:slide-out-to-right-8 exiting:fade-out relative h-[90vh] w-[92vw] max-w-none overflow-hidden rounded-xl border border-[#1a1a2e] bg-[#050810] shadow-[0_0_80px_rgba(34,211,238,0.05)] duration-300 ease-out">
           <Dialog className="h-full outline-none">
             {({ close }) => (
               <ModalShell label={label} Icon={Icon} close={close}>
-                <ModalContent id={id} />
+                <ModalContent>{content}</ModalContent>
               </ModalShell>
             )}
           </Dialog>
