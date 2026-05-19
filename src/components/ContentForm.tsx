@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { createContentBlockSchema, updateContentBlockSchema } from "@/schemas";
@@ -9,27 +9,28 @@ import {
   updateContentBlock,
   deleteContentBlock,
 } from "@/actions/content.actions";
+import { Form } from "@/components/ui/Form";
+import { TextField } from "@/components/ui/TextField";
+import { TextArea } from "@/components/ui/TextArea";
+import { Checkbox } from "@/components/ui/Checkbox";
+import { Button } from "@/components/ui/Button";
 
 /* ---------- types ---------- */
-
-/* create + edit share INPUT shape discipline */
 type CreateInput = z.input<typeof createContentBlockSchema>;
 type UpdateInput = z.input<typeof updateContentBlockSchema>;
 
 type ContentBlockFormProps =
-  | {
-      mode: "create";
-    }
-  | {
-      mode: "edit";
-      blockKey: string;
-      initialData: UpdateInput;
-    };
+  | { mode: "create" }
+  | { mode: "edit"; blockKey: string; initialData: UpdateInput };
 
 export function ContentBlockForm(props: ContentBlockFormProps) {
   const isEdit = props.mode === "edit";
 
-  const { register, handleSubmit } = useForm<CreateInput | UpdateInput>({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<CreateInput | UpdateInput>({
     resolver: zodResolver(
       isEdit ? updateContentBlockSchema : createContentBlockSchema,
     ),
@@ -54,7 +55,6 @@ export function ContentBlockForm(props: ContentBlockFormProps) {
       );
       return;
     }
-
     await updateContentBlock(
       props.blockKey,
       updateContentBlockSchema.parse(data as UpdateInput),
@@ -62,46 +62,98 @@ export function ContentBlockForm(props: ContentBlockFormProps) {
   };
 
   const onDelete = async () => {
-    if (isEdit) {
-      await deleteContentBlock(props.blockKey);
-    }
+    if (isEdit) await deleteContentBlock(props.blockKey);
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <Form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+      {/* Key field — create mode only */}
       {!isEdit && (
-        <input
-          {...register("key" as keyof CreateInput)}
-          placeholder="Block key (hero, footer, etc)"
+        <Controller
+          name={"key" as keyof CreateInput}
+          control={control}
+          render={({ field }) => (
+            <TextField
+              label="Block Key"
+              placeholder="hero, about, footer…"
+              value={field.value as string}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              isInvalid={!!errors["key" as keyof typeof errors]}
+              errorMessage={
+                (errors["key" as keyof typeof errors]?.message as string) ?? ""
+              }
+            />
+          )}
         />
       )}
 
-      <input
-        {...register("title" as keyof (CreateInput & UpdateInput))}
-        placeholder="Title"
+      {/* Title */}
+      <Controller
+        name={"title" as keyof (CreateInput & UpdateInput)}
+        control={control}
+        render={({ field }) => (
+          <TextField
+            label="Title"
+            placeholder="Optional heading override"
+            value={field.value as string}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+            isInvalid={!!errors["title" as keyof typeof errors]}
+            errorMessage={
+              (errors["title" as keyof typeof errors]?.message as string) ?? ""
+            }
+          />
+        )}
       />
 
-      <textarea
-        {...register("content" as keyof (CreateInput & UpdateInput))}
-        placeholder="Markdown content"
-        rows={8}
+      {/* Content (Markdown) */}
+      <Controller
+        name={"content" as keyof (CreateInput & UpdateInput)}
+        control={control}
+        render={({ field }) => (
+          <TextArea
+            label="Content"
+            placeholder="Markdown content…"
+            value={field.value as string}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+            isInvalid={!!errors["content" as keyof typeof errors]}
+            errorMessage={
+              (errors["content" as keyof typeof errors]?.message as string) ??
+              ""
+            }
+            className="min-h-32"
+          />
+        )}
       />
 
-      <label>
-        <input
-          type="checkbox"
-          {...register("published" as keyof (CreateInput & UpdateInput))}
-        />
-        Published
-      </label>
+      {/* Published toggle */}
+      <Controller
+        name={"published" as keyof (CreateInput & UpdateInput)}
+        control={control}
+        render={({ field }) => (
+          <Checkbox
+            isSelected={field.value as boolean}
+            onChange={field.onChange}
+          >
+            Published
+          </Checkbox>
+        )}
+      />
 
-      <button type="submit">{isEdit ? "Update Block" : "Create Block"}</button>
+      {/* Actions */}
+      <div className="flex gap-2 pt-2">
+        <Button type="submit" variant="primary" isDisabled={isSubmitting}>
+          {isSubmitting ? "Saving…" : isEdit ? "Update Block" : "Create Block"}
+        </Button>
 
-      {isEdit && (
-        <button type="button" onClick={onDelete}>
-          Delete Block
-        </button>
-      )}
-    </form>
+        {isEdit && (
+          <Button type="button" variant="destructive" onPress={onDelete}>
+            Delete Block
+          </Button>
+        )}
+      </div>
+    </Form>
   );
 }

@@ -1,16 +1,16 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import StarCanvas from "./StarCanvas";
 import HeroIdentity from "./HeroIdentity";
 import { MENU_ITEMS } from "./menu-items";
 import MenuRow from "./HeroMenuDialog";
 
 interface HeroMenuProps {
   lore: string;
+  contentMap: Record<string, React.ReactNode>;
 }
 
-export default function HeroMenu({ lore }: HeroMenuProps) {
+export default function HeroMenu({ lore, contentMap }: HeroMenuProps) {
   const navRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -19,7 +19,7 @@ export default function HeroMenu({ lore }: HeroMenuProps) {
 
   return (
     <div
-      className="relative w-full overflow-hidden rounded-xl border border-[#1a1a2e] bg-[#050810]"
+      className="relative w-full overflow-hidden rounded-xl border border-[#1a1a2e] bg-transparent"
       style={{ height: "100svh", maxHeight: "860px" }}
     >
       <div
@@ -29,7 +29,6 @@ export default function HeroMenu({ lore }: HeroMenuProps) {
             "radial-gradient(ellipse 60% 70% at 70% 50%, #0d1b3e 0%, transparent 65%), radial-gradient(ellipse 40% 60% at 20% 80%, #0a1628 0%, transparent 60%)",
         }}
       />
-      <StarCanvas />
 
       <div
         className="pointer-events-none absolute inset-0 z-10"
@@ -88,7 +87,14 @@ export default function HeroMenu({ lore }: HeroMenuProps) {
 
           <nav ref={navRef} tabIndex={-1} className="w-full focus:outline-none">
             {MENU_ITEMS.map(({ id, label, desc, Icon }) => (
-              <MenuRow key={id} id={id} label={label} desc={desc} Icon={Icon} />
+              <MenuRow
+                key={id}
+                id={id}
+                label={label}
+                desc={desc}
+                Icon={Icon}
+                content={contentMap[id]}
+              />
             ))}
           </nav>
         </div>
