@@ -4,6 +4,7 @@ import { prisma } from "./lib/db";
 import { formDataSchema } from "./schemas";
 import bcrypt from "bcryptjs";
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  session: { strategy: "jwt" },
   providers: [
     Credentials({
       // You can specify which fields should be submitted, by adding keys to the `credentials` object.
@@ -31,7 +32,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             id: user.id,
             email: user.email,
           };
-        } catch {
+        } catch (e) {
+          console.error("Auth error:", e);
           return null;
         }
       },
