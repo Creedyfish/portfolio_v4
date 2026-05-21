@@ -65,12 +65,12 @@ export default function ParallaxScene({
       {/* Section 2: HeroMenu */}
       <section
         ref={heroRef}
-        className="relative z-10 h-svh"
+        className="relative z-10 h-svh overflow-hidden"
         style={{ scrollSnapAlign: "start" }}
       >
         <motion.div
           style={{ y: heroY }}
-          className="flex h-svh items-center justify-center p-4"
+          className="flex h-full items-center justify-center p-4"
         >
           <HeroMenu lore={lore} contentMap={contentMap} />
         </motion.div>

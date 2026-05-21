@@ -4,7 +4,8 @@ import { useEffect, useRef } from "react";
 import HeroIdentity from "./HeroIdentity";
 import { MENU_ITEMS } from "./menu-items";
 import MenuRow from "./HeroMenuDialog";
-
+import StarCanvas from "./StarCanvas";
+import Link from "next/link";
 interface HeroMenuProps {
   lore: string;
   contentMap: Record<string, React.ReactNode>;
@@ -19,14 +20,14 @@ export default function HeroMenu({ lore, contentMap }: HeroMenuProps) {
 
   return (
     <div
-      className="relative w-full overflow-hidden rounded-xl border border-[#1a1a2e] bg-transparent"
+      className="border-border-subtle relative w-full overflow-hidden rounded-xl border bg-transparent"
       style={{ height: "100svh", maxHeight: "860px" }}
     >
       <div
         className="absolute inset-0 z-1"
         style={{
           background:
-            "radial-gradient(ellipse 60% 70% at 70% 50%, #0d1b3e 0%, transparent 65%), radial-gradient(ellipse 40% 60% at 20% 80%, #0a1628 0%, transparent 60%)",
+            "radial-gradient(ellipse 60% 70% at 70% 50%, var(--bg-elevated) 0%, transparent 65%), radial-gradient(ellipse 40% 60% at 20% 80%, var(--bg-deep) 0%, transparent 60%)",
         }}
       />
 
@@ -50,7 +51,7 @@ export default function HeroMenu({ lore, contentMap }: HeroMenuProps) {
         className="absolute top-0 right-0 left-0 z-8 h-px opacity-35"
         style={{
           background:
-            "linear-gradient(90deg, transparent, #1e4080, #22d3ee, #1e4080, transparent)",
+            "linear-gradient(90deg, transparent, var(--border-default), var(--accent), var(--border-default), transparent)",
         }}
       />
       <div
@@ -58,9 +59,11 @@ export default function HeroMenu({ lore, contentMap }: HeroMenuProps) {
         style={{
           bottom: "44px",
           background:
-            "linear-gradient(90deg, transparent, #1e4080, #22d3ee, #1e4080, transparent)",
+            "linear-gradient(90deg, transparent, var(--border-default), var(--accent), var(--border-default), transparent)",
         }}
       />
+
+      <StarCanvas />
 
       {[
         "top-3 left-3 border-t border-l",
@@ -70,7 +73,7 @@ export default function HeroMenu({ lore, contentMap }: HeroMenuProps) {
       ].map((cls, i) => (
         <div
           key={i}
-          className={`absolute z-25 size-4 border-[#0f2030] md:size-5 ${cls}`}
+          className={`border-border-subtle absolute z-25 size-4 md:size-5 ${cls}`}
         />
       ))}
 
@@ -81,7 +84,7 @@ export default function HeroMenu({ lore, contentMap }: HeroMenuProps) {
         <HeroIdentity lore={lore} />
 
         <div className="flex w-full flex-col justify-center md:w-auto">
-          <p className="font-pixel mb-3 pl-0.5 text-[9px] tracking-[0.18em] text-[#152535] uppercase lg:mb-4 lg:text-[10px] xl:text-[13px] 2xl:text-[15px]">
+          <p className="font-pixel text-text-ghost mb-3 pl-0.5 text-[9px] tracking-[0.18em] uppercase lg:mb-4 lg:text-[10px] xl:text-[13px] 2xl:text-[15px]">
             — Main Menu —
           </p>
 
@@ -100,14 +103,38 @@ export default function HeroMenu({ lore, contentMap }: HeroMenuProps) {
         </div>
       </div>
 
-      <div className="absolute right-0 bottom-0 left-0 z-30 flex items-center justify-between border-t border-[#080f1e] bg-[rgba(5,8,16,0.95)] px-4 py-2 md:px-6 md:py-3">
-        <div className="font-pixel ml-auto flex gap-3 text-[8px] tracking-[0.08em] text-[#152535] md:gap-4 lg:text-[9px] xl:text-[11px] 2xl:text-[13px]">
-          <span className="flex items-center gap-1">
-            <span className="inline-block size-1.5 rounded-full bg-[#22d3ee] md:size-2" />
-            Available for hire
+      {/* Footer CTA */}
+      <div className="border-bg-base bg-bg-deepest/95 absolute right-0 bottom-0 left-0 z-30 flex items-center justify-between gap-3 border-t px-4 py-2 md:px-6 md:py-2.5">
+        {/* Availability pulse */}
+        <div className="font-pixel text-text-muted flex items-center gap-2 text-[8px] tracking-[0.08em] lg:text-[9px]">
+          <span className="relative flex size-1.5 md:size-2">
+            <span className="bg-accent absolute inline-flex h-full w-full animate-ping rounded-full opacity-60" />
+            <span className="bg-accent relative inline-flex size-1.5 rounded-full md:size-2" />
           </span>
-          <span className="hidden sm:block">Davao City, PH</span>
+          <span className="text-text-secondary">Open to work</span>
+          <span className="text-text-ghost hidden sm:inline">
+            · Davao City, PH
+          </span>
         </div>
+
+        {/* Resume download */}
+        <Link
+          href="/resume.pdf"
+          download="Irvin-Elbanbuena-Resume.pdf"
+          className="font-pixel group relative flex items-center gap-2 overflow-hidden rounded border border-[#1e3448] bg-[#060e1c] px-3 py-1.5 text-[8px] tracking-[0.12em] text-[#4a7090] uppercase transition-all duration-200 hover:border-[#22d3ee]/60 hover:text-[#22d3ee] active:scale-95 lg:text-[9px] xl:text-[10px]"
+        >
+          <span
+            className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+            style={{
+              background:
+                "radial-gradient(ellipse 100% 100% at 50% 50%, rgba(34,211,238,0.06) 0%, transparent 70%)",
+            }}
+          />
+          <span className="relative">Download Resume</span>
+          <span className="relative font-mono text-[10px] transition-transform duration-150 group-hover:translate-x-0.5 lg:text-xs">
+            ↓
+          </span>
+        </Link>
       </div>
     </div>
   );

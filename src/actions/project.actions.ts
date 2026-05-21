@@ -40,20 +40,30 @@ export async function createProject(data: CreateProjectInput) {
   const { technologyIds, order, ...projectData } = data;
 
   return await prisma.$transaction(async (tx) => {
-    // shift existing
     if (order !== undefined) {
-      await tx.project.updateMany({
+      // Get affected projects ordered DESC
+      const projectsToShift = await tx.project.findMany({
         where: {
           order: {
             gte: order,
           },
         },
-        data: {
-          order: {
-            increment: 1,
-          },
+        orderBy: {
+          order: "desc",
         },
       });
+
+      // Shift one by one
+      for (const project of projectsToShift) {
+        await tx.project.update({
+          where: {
+            id: project.id,
+          },
+          data: {
+            order: project.order + 1,
+          },
+        });
+      }
     }
 
     const project = await tx.project.create({

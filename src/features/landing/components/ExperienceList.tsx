@@ -5,11 +5,14 @@ import { Calendar } from "lucide-react";
 import EmptyState from "./EmptyState";
 import { Experience } from "./ExperienceContent";
 import { motion, AnimatePresence } from "motion/react";
+
 interface ExperienceListProps {
   experiences: Experience[];
 }
 
 export default function ExperienceList({ experiences }: ExperienceListProps) {
+  const [expanded, setExpanded] = useState<string | null>(null);
+
   function formatDateRange(start: Date, end?: Date | null) {
     const fmt = (d: Date) =>
       new Date(d).toLocaleDateString("en-US", {
@@ -19,21 +22,20 @@ export default function ExperienceList({ experiences }: ExperienceListProps) {
     return `${fmt(start)} — ${end ? fmt(end) : "Present"}`;
   }
 
-  const [expanded, setExpanded] = useState<string | null>(null);
-
   const visible = experiences.filter((e) => e.published);
   if (visible.length === 0) return <EmptyState label="No experience yet" />;
 
   return (
     <div className="px-6 py-5">
-      <div className="relative pl-4">
+      <div className="relative pl-5">
         {/* Vertical timeline line */}
-        <div className="absolute top-0 bottom-0 left-0 w-px bg-[#0a1520]" />
+        <div className="from-accent/40 via-accent/10 absolute top-2 bottom-2 left-0 w-px bg-linear-to-b to-transparent" />
 
         <div className="space-y-3">
           {visible.map((exp) => {
             const isOpen = expanded === exp.id;
             const isCurrent = !exp.endDate;
+
             const contributionLines = Array.isArray(exp.contributions)
               ? exp.contributions
               : typeof exp.contributions === "string"
@@ -43,64 +45,88 @@ export default function ExperienceList({ experiences }: ExperienceListProps) {
                     .filter(Boolean)
                 : [];
 
+            const techs = exp.technologies ?? [];
+
             return (
               <div key={exp.id} className="relative">
-                {/* Dot */}
+                {/* Timeline dot */}
                 <div
-                  className={`absolute top-5 -left-5 size-2.5 rounded-full border transition-colors ${
-                    isCurrent || isOpen
-                      ? "border-[#22d3ee] bg-[#22d3ee] shadow-[0_0_8px_rgba(34,211,238,0.5)]"
-                      : "border-[#122030] bg-[#040710]"
+                  className={`absolute top-5 -left-6 size-2.5 rounded-full border transition-all duration-300 ${
+                    isCurrent
+                      ? "border-accent bg-accent shadow-[0_0_10px_rgb(var(--accent)/0.6)]"
+                      : isOpen
+                        ? "border-accent/60 bg-accent shadow-[0_0_6px_rgb(var(--accent)/0.3)]"
+                        : "border-border-default bg-bg-deepest"
                   }`}
                 />
 
                 <button
                   onClick={() => setExpanded(isOpen ? null : exp.id)}
-                  className="group w-full cursor-pointer rounded-md border border-[#0a1520] bg-[#040710] p-4 text-left transition-all hover:border-[#1e3448]"
+                  className={`group w-full cursor-pointer rounded-sm border text-left transition-all duration-200 ${
+                    isOpen
+                      ? "border-border-default bg-bg-deep"
+                      : "border-border-subtle bg-bg-deepest hover:border-border-default hover:bg-bg-deep"
+                  }`}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="mb-0.5 flex flex-wrap items-center gap-2">
-                        {isCurrent && (
-                          <span className="font-pixel rounded border border-[#22d3ee]/30 bg-[#0a1a2e] px-1.5 py-0.5 text-[6px] tracking-widest text-[#22d3ee] uppercase sm:text-[8px] lg:text-[10px]">
-                            Current
-                          </span>
-                        )}
-                        <h3 className="font-cinzel text-sm font-bold text-[#a8b8cc] sm:text-base lg:text-lg">
+                  {/* Card header */}
+                  <div className="flex items-start justify-between gap-3 p-4">
+                    <div className="min-w-0 flex-1">
+                      {/* Status badge + position */}
+                      <div className="mb-1 flex flex-wrap items-center gap-2">
+                        <span
+                          className={`font-pixel rounded-sm border px-1.5 py-0.5 text-[6px] tracking-widest uppercase sm:text-[8px] lg:text-[9px] ${
+                            isCurrent
+                              ? "border-accent/40 bg-bg-elevated text-accent"
+                              : "border-border-default bg-bg-deepest text-text-ghost"
+                          }`}
+                        >
+                          {isCurrent ? "▶ Active" : "✓ Completed"}
+                        </span>
+
+                        <h3 className="text-text-primary font-cinzel text-sm font-bold sm:text-base lg:text-lg">
                           {exp.position}
                         </h3>
                       </div>
-                      <div className="flex items-center gap-1.5">
+
+                      {/* Company row */}
+                      <div className="mb-1.5 flex items-center gap-1.5">
                         {exp.companyLogo && (
                           <img
                             src={exp.companyLogo}
                             alt={`${exp.company} logo`}
-                            className="size-4 rounded-sm object-contain opacity-60 sm:size-5"
+                            className="size-4 rounded-sm object-contain opacity-50 sm:size-5"
                           />
                         )}
-                        <p className="font-cinzel text-xs text-[#3a5878] sm:text-sm lg:text-base">
+
+                        <p className="text-text-ghost font-cinzel text-xs sm:text-sm">
                           {exp.company}
                         </p>
                       </div>
 
-                      <div className="mt-1 flex items-center gap-1 text-[#152535]">
-                        <Calendar strokeWidth={1.5} className="size-3" />
-                        <span className="font-pixel text-[7px] tracking-widest sm:text-[9px] lg:text-[11px]">
+                      {/* Date */}
+                      <div className="text-text-faint flex items-center gap-1">
+                        <Calendar
+                          strokeWidth={1.5}
+                          className="size-3 shrink-0"
+                        />
+
+                        <span className="font-pixel text-[7px] tracking-widest sm:text-[9px]">
                           {formatDateRange(exp.startDate, exp.endDate)}
                         </span>
                       </div>
                     </div>
+
+                    {/* Chevron */}
                     <motion.span
                       animate={{ rotate: isOpen ? 90 : 0 }}
                       transition={{ duration: 0.2 }}
-                      className="shrink-0 font-mono text-lg text-[#22d3ee] sm:text-xl lg:text-2xl"
+                      className="text-accent/50 group-hover:text-accent mt-1 shrink-0 font-mono text-lg transition-colors sm:text-xl lg:text-2xl"
                     >
                       ›
                     </motion.span>
                   </div>
 
-                  {/* Expanded detail */}
-
+                  {/* Expanded content */}
                   <AnimatePresence initial={false}>
                     {isOpen && (
                       <motion.div
@@ -111,7 +137,8 @@ export default function ExperienceList({ experiences }: ExperienceListProps) {
                         transition={{ duration: 0.25, ease: "easeInOut" }}
                         style={{ overflow: "hidden" }}
                       >
-                        <div className="mt-4 border-t border-[#080f1e] pt-4 text-left">
+                        <div className="border-border-subtle border-t px-4 pt-4 pb-4">
+                          {/* Description */}
                           <div className="mb-4 space-y-2">
                             {exp.description
                               .split(/\n{2,}/)
@@ -126,28 +153,66 @@ export default function ExperienceList({ experiences }: ExperienceListProps) {
                               .map((p, i) => (
                                 <p
                                   key={i}
-                                  className="font-cinzel text-xs leading-relaxed text-[#3a5878] sm:text-sm lg:text-base"
+                                  className="text-text-muted font-cinzel text-xs leading-relaxed sm:text-sm"
                                 >
                                   {p}
                                 </p>
                               ))}
                           </div>
 
+                          {/* Contributions */}
                           {contributionLines.length > 0 && (
                             <div className="mb-4">
-                              <p className="font-pixel mb-2 text-[7px] tracking-[0.15em] text-[#152535] uppercase sm:text-[9px] lg:text-[11px]">
-                                Contributions
-                              </p>
+                              <div className="mb-3 flex items-center gap-2">
+                                <span className="text-accent/40 font-pixel text-[7px] tracking-[0.2em] uppercase sm:text-[9px]">
+                                  Contributions
+                                </span>
 
-                              <div className="space-y-1.5">
+                                <div className="from-accent/20 h-px flex-1 bg-linear-to-r to-transparent" />
+                              </div>
+
+                              <div className="space-y-2">
                                 {contributionLines.map((line, i) => (
-                                  <div key={i} className="flex gap-2">
-                                    <span className="shrink-0 font-mono text-sm text-[#22d3ee] sm:text-base lg:text-lg">
+                                  <div key={i} className="flex gap-2.5">
+                                    <span className="text-accent/50 mt-0.5 shrink-0 font-mono text-xs">
                                       ›
                                     </span>
-                                    <p className="font-cinzel text-xs leading-relaxed text-[#3a5878] sm:text-sm lg:text-base">
+
+                                    <p className="text-text-muted font-cinzel text-xs leading-relaxed sm:text-sm">
                                       {line}
                                     </p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Tech stack */}
+                          {techs.length > 0 && (
+                            <div>
+                              <div className="mb-2 flex items-center gap-2">
+                                <span className="text-accent/40 font-pixel text-[7px] tracking-[0.2em] uppercase sm:text-[9px]">
+                                  Stack
+                                </span>
+
+                                <div className="from-accent/20 h-px flex-1 bg-linear-to-r to-transparent" />
+                              </div>
+
+                              <div className="flex flex-wrap gap-2">
+                                {techs.map(({ technology }) => (
+                                  <div
+                                    key={technology.id}
+                                    className="border-border-subtle bg-bg-deepest hover:border-border-default flex items-center gap-1.5 rounded-sm border px-2 py-1 transition-colors"
+                                  >
+                                    <img
+                                      src={technology.iconUrl}
+                                      alt={technology.name}
+                                      className="size-3.5 object-contain opacity-70"
+                                    />
+
+                                    <span className="text-text-ghost font-cinzel text-[10px] sm:text-xs">
+                                      {technology.name}
+                                    </span>
                                   </div>
                                 ))}
                               </div>
