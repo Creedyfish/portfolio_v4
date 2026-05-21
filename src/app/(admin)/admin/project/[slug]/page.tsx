@@ -9,7 +9,7 @@ export default async function page({
   const { slug } = await params;
   const project = await getProjectBySlug(slug);
   const technologiesList = await listTechnologies();
-
+  console.log(slug);
   if (!project) {
     notFound();
   }
@@ -27,6 +27,7 @@ export default async function page({
   return (
     <div className="flex flex-col">
       <ProjectForm
+        slug={slug}
         initialData={initialData}
         techList={technologiesList}
         mode="edit"

@@ -33,6 +33,11 @@ export default async function DashboardLayout({
               New Skills
             </Button>
           </Link>
+          <Link href={"/admin/content"} passHref>
+            <Button className={"p-4"} variant="primary">
+              New Content
+            </Button>
+          </Link>
           <form
             action={async () => {
               "use server";

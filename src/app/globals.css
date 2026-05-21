@@ -4,26 +4,137 @@
 @plugin "tailwindcss-animate";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #080d1a;
+  --foreground: #e8f4ff;
+
+  /* Background Scale */
+  --bg-deepest: #040710;
+  --bg-deep: #060b16;
+  --bg-base: #080d1a;
+  --bg-surface: #0a0f1e;
+  --bg-elevated: #0a1a2e;
+
+  /* Border Scale */
+  --border-subtle: #0d1c2e;
+  --border-default: #1e3448;
+  --border-strong: #2a4a6a;
+
+  /* Text Scale */
+  --text-bright: #e8f4ff;
+  --text-primary: #c8dcea;
+  --text-secondary: #8aafc8;
+  --text-muted: #6a90b0;
+  --text-faint: #4a7090;
+  --text-ghost: #2a4a6a;
+
+  /* Accent */
+  --accent: 34 211 238;
+  --accent-70: rgba(34, 211, 238, 0.7);
+  --accent-40: rgba(34, 211, 238, 0.4);
+  --accent-15: rgba(34, 211, 238, 0.15);
 }
 
-@theme inline {
+@theme {
+  /* Base */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  /* Backgrounds */
+  --color-bg-deepest: var(--bg-deepest);
+  --color-bg-deep: var(--bg-deep);
+  --color-bg-base: var(--bg-base);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-elevated: var(--bg-elevated);
+
+  /* Borders */
+  --color-border-subtle: var(--border-subtle);
+  --color-border-default: var(--border-default);
+  --color-border-strong: var(--border-strong);
+
+  /* Text */
+  --color-text-bright: var(--text-bright);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-faint: var(--text-faint);
+  --color-text-ghost: var(--text-ghost);
+
+  /* Accent */
+  --color-accent: rgb(var(--accent));
+  --color-accent-70: var(--accent-70);
+  --color-accent-40: var(--accent-40);
+  --color-accent-15: var(--accent-15);
+
+  /* Fonts */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-pixel: "Press Start 2P", monospace;
+  --font-cinzel: "Cinzel", serif;
+
+  /* Breakpoints */
+  --breakpoint-3xl: 1920px;
+  --breakpoint-4xl: 2560px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #080d1a;
+    --foreground: #e8f4ff;
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-deepest);
+  border-left: 1px solid var(--border-subtle);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 0px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-40);
+  box-shadow: 0 0 6px var(--accent-40);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--bg-deepest);
+}
+
+/* Firefox */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) var(--bg-deepest);
 }

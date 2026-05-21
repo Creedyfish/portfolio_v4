@@ -19,7 +19,8 @@ export async function createExperience(data: CreateExperienceInput) {
       endDate: parsed.endDate ? new Date(parsed.endDate) : null,
     },
   });
-
+  revalidatePath("/experience");
+  revalidatePath("/admin");
   return experience;
 }
 
@@ -50,20 +51,24 @@ export async function getExperienceBySlug(id: string) {
 }
 
 // UPDATE
+// UPDATE
 export async function updateExperience(
   id: string,
   data: UpdateExperienceInput,
 ) {
   const parsed = updateExperienceSchema.parse(data);
 
-  const experience = await prisma.experience.create({
+  const experience = await prisma.experience.update({
+    // ← was .create
+    where: { id }, // ← add this
     data: {
       ...parsed,
-      startDate: new Date(parsed.startDate), // Only convert here
+      startDate: new Date(parsed.startDate),
       endDate: parsed.endDate ? new Date(parsed.endDate) : null,
     },
   });
-
+  revalidatePath("/experience");
+  revalidatePath("/admin");
   return experience;
 }
 
