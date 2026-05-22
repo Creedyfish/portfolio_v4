@@ -89,7 +89,6 @@ export default async function AboutContent() {
             width={200}
             height={200}
             alt="profile_picture"
-            unoptimized
             className="block brightness-[1.15] saturate-[1.1]"
           />
         </div>
