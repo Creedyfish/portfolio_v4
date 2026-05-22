@@ -40,7 +40,7 @@ export default function SplashScreen({ onStart }: SplashScreenProps) {
         </p>
 
         {/* Blink — add to globals.css: @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} } */}
-        <p className="font-pixel mt-8 animate-[blink_1.1s_step-end_infinite] text-[10px] tracking-[0.25em] text-[#22d3ee] uppercase sm:text-xs">
+        <p className="font-pixel xs:text-[8px] mt-8 animate-[blink_1.1s_step-end_infinite] text-[7px] tracking-[0.15em] text-[#22d3ee] uppercase sm:text-[10px] md:text-xs">
           — Press any key or tap to start —
         </p>
       </div>

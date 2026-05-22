@@ -84,7 +84,7 @@ export default function HeroMenu({ lore, contentMap }: HeroMenuProps) {
         <HeroIdentity lore={lore} />
 
         <div className="flex w-full flex-col justify-center md:w-auto">
-          <p className="font-pixel text-text-ghost mb-3 pl-0.5 text-[9px] tracking-[0.18em] uppercase lg:mb-4 lg:text-[10px] xl:text-[13px] 2xl:text-[15px]">
+          <p className="font-pixel text-text-ghost mb-3 pl-0.5 text-center text-[9px] tracking-[0.18em] uppercase lg:mb-4 lg:text-left lg:text-[10px] xl:text-[13px] 2xl:text-[15px]">
             — Main Menu —
           </p>
 
