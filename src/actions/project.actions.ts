@@ -97,47 +97,103 @@ export async function updateProject(slug: string, data: CreateProjectInput) {
   return await prisma.$transaction(async (tx) => {
     const existing = await tx.project.findUnique({
       where: { slug },
-      select: { order: true },
+      select: { id: true, order: true },
     });
 
-    if (!existing) throw new Error("Project not found");
+    if (!existing) {
+      throw new Error("Project not found");
+    }
 
     const oldOrder = existing.order;
 
     if (newOrder !== undefined && newOrder !== oldOrder) {
       const direction = newOrder < oldOrder ? 1 : -1;
+
       const start = Math.min(oldOrder, newOrder);
       const end = Math.max(oldOrder, newOrder);
-      const OFFSET = 1_000_000;
 
-      // Phase 1: push the whole block into a range nothing else occupies
-      await tx.project.updateMany({
-        where: { order: { gte: start, lte: end } },
-        data: { order: { increment: OFFSET } },
+      const maxProject = await tx.project.findFirst({
+        orderBy: {
+          order: "desc",
+        },
+        select: {
+          order: true,
+        },
       });
 
-      // Phase 2: bring it back down into its real final positions
-      await tx.project.updateMany({
-        where: { order: { gte: start + OFFSET, lte: end + OFFSET } },
-        data: { order: { decrement: OFFSET - direction } },
+      const temporaryOrder = (maxProject?.order ?? 0) + 1;
+
+      await tx.project.update({
+        where: {
+          id: existing.id,
+        },
+        data: {
+          order: temporaryOrder,
+        },
+      });
+
+      const projectsToShift = await tx.project.findMany({
+        where: {
+          order: {
+            gte: start,
+            lte: end,
+          },
+        },
+        orderBy: {
+          order: direction === 1 ? "desc" : "asc",
+        },
+        select: {
+          id: true,
+          order: true,
+        },
+      });
+
+      for (const project of projectsToShift) {
+        await tx.project.update({
+          where: {
+            id: project.id,
+          },
+          data: {
+            order: project.order + direction,
+          },
+        });
+      }
+
+      await tx.project.update({
+        where: {
+          id: existing.id,
+        },
+        data: {
+          order: newOrder,
+        },
       });
     }
 
-    if (technologyIds) {
+    if (technologyIds !== undefined) {
       await tx.projectTechnology.deleteMany({
-        where: { project: { slug } },
+        where: {
+          project: {
+            slug,
+          },
+        },
       });
     }
 
-    const project = await tx.project.update({
-      where: { slug },
+    return await tx.project.update({
+      where: {
+        slug,
+      },
       data: {
         ...updateData,
-        ...(newOrder !== undefined && { order: newOrder }),
-        ...(technologyIds && {
+
+        ...(newOrder !== undefined && {
+          order: newOrder,
+        }),
+
+        ...(technologyIds !== undefined && {
           technologies: {
-            create: technologyIds.map((techId, index) => ({
-              technologyId: techId,
+            create: technologyIds.map((technologyId, index) => ({
+              technologyId,
               order: index,
             })),
           },
@@ -145,13 +201,15 @@ export async function updateProject(slug: string, data: CreateProjectInput) {
       },
       include: {
         technologies: {
-          orderBy: { order: "asc" },
-          include: { technology: true },
+          orderBy: {
+            order: "asc",
+          },
+          include: {
+            technology: true,
+          },
         },
       },
     });
-
-    return project;
   });
 }
 
