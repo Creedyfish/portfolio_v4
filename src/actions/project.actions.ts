@@ -105,33 +105,18 @@ export async function updateProject(slug: string, data: CreateProjectInput) {
     const oldOrder = existing.order;
 
     if (newOrder !== undefined && newOrder !== oldOrder) {
-      if (newOrder < oldOrder) {
-        // move up: shift others down
-        await tx.project.updateMany({
-          where: {
-            order: {
-              gte: newOrder,
-              lt: oldOrder,
-            },
-          },
-          data: {
-            order: { increment: 1 },
-          },
-        });
-      } else {
-        // move down: shift others up
-        await tx.project.updateMany({
-          where: {
-            order: {
-              gt: oldOrder,
-              lte: newOrder,
-            },
-          },
-          data: {
-            order: { decrement: 1 },
-          },
-        });
-      }
+      const direction = newOrder < oldOrder ? 1 : -1;
+      const start = Math.min(oldOrder, newOrder);
+      const end = Math.max(oldOrder, newOrder);
+
+      await tx.project.updateMany({
+        where: {
+          order: { gte: start, lte: end },
+        },
+        data: {
+          order: { increment: direction },
+        },
+      });
     }
 
     if (technologyIds) {
