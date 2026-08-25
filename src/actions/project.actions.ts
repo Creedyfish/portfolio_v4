@@ -108,14 +108,18 @@ export async function updateProject(slug: string, data: CreateProjectInput) {
       const direction = newOrder < oldOrder ? 1 : -1;
       const start = Math.min(oldOrder, newOrder);
       const end = Math.max(oldOrder, newOrder);
+      const OFFSET = 1_000_000;
 
+      // Phase 1: push the whole block into a range nothing else occupies
       await tx.project.updateMany({
-        where: {
-          order: { gte: start, lte: end },
-        },
-        data: {
-          order: { increment: direction },
-        },
+        where: { order: { gte: start, lte: end } },
+        data: { order: { increment: OFFSET } },
+      });
+
+      // Phase 2: bring it back down into its real final positions
+      await tx.project.updateMany({
+        where: { order: { gte: start + OFFSET, lte: end + OFFSET } },
+        data: { order: { decrement: OFFSET - direction } },
       });
     }
 
