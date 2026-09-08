@@ -33,6 +33,11 @@ export default async function DashboardLayout({
               New Skills
             </Button>
           </Link>
+          <Link href={"/admin/certifications"} passHref>
+            <Button className={"p-4"} variant="primary">
+              New Certification
+            </Button>
+          </Link>
           <Link href={"/admin/content"} passHref>
             <Button className={"p-4"} variant="primary">
               New Content

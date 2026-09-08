@@ -68,6 +68,11 @@ export type ExperienceTechnology = Prisma.ExperienceTechnologyModel
  */
 export type Skill = Prisma.SkillModel
 /**
+ * Model Certification
+ * 
+ */
+export type Certification = Prisma.CertificationModel
+/**
  * Model ContentBlock
  * 
  */

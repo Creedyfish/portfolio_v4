@@ -61,6 +61,7 @@ export const ModelName = {
   Experience: 'Experience',
   ExperienceTechnology: 'ExperienceTechnology',
   Skill: 'Skill',
+  Certification: 'Certification',
   ContentBlock: 'ContentBlock'
 } as const
 
@@ -217,6 +218,23 @@ export const SkillScalarFieldEnum = {
 } as const
 
 export type SkillScalarFieldEnum = (typeof SkillScalarFieldEnum)[keyof typeof SkillScalarFieldEnum]
+
+
+export const CertificationScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  issuer: 'issuer',
+  badgeUrl: 'badgeUrl',
+  credentialUrl: 'credentialUrl',
+  issueDate: 'issueDate',
+  expiryDate: 'expiryDate',
+  order: 'order',
+  published: 'published',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CertificationScalarFieldEnum = (typeof CertificationScalarFieldEnum)[keyof typeof CertificationScalarFieldEnum]
 
 
 export const ContentBlockScalarFieldEnum = {
