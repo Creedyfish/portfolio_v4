@@ -1,11 +1,17 @@
 import AuthForm from "@/components/BasicForm";
 import { auth, signOut } from "@/auth";
-import { listProjects, listExperiences, deleteProject } from "@/actions";
+import {
+  listProjects,
+  listExperiences,
+  listCertifications,
+  deleteProject,
+} from "@/actions";
 import {
   listContentBlocks,
   deleteContentBlock,
 } from "@/actions/content.actions";
 import { deleteExperience } from "@/actions/experience.actions";
+import { deleteCertification } from "@/actions/certification.actions";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import DeleteButton from "@/components/DeleteButton";
@@ -21,11 +27,13 @@ export default async function Home() {
     );
   }
 
-  const [projects, experiences, contentBlocks] = await Promise.all([
-    listProjects(),
-    listExperiences(),
-    listContentBlocks(),
-  ]);
+  const [projects, experiences, certifications, contentBlocks] =
+    await Promise.all([
+      listProjects(),
+      listExperiences(),
+      listCertifications(),
+      listContentBlocks(),
+    ]);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center font-sans">
@@ -68,6 +76,32 @@ export default async function Home() {
               />
             </div>
           ))}
+        </div>
+
+        {/* Certifications */}
+        <div className="flex flex-col gap-2">
+          <span className="font-bold text-green-400">Certifications</span>
+          {certifications.map((certification) => (
+            <div
+              key={certification.id}
+              className="flex items-center justify-between gap-2"
+            >
+              <Link
+                passHref
+                href={`/admin/certifications/${certification.id}`}
+              >
+                <Button variant="secondary">{certification.name}</Button>
+              </Link>
+              <DeleteButton
+                action={deleteCertification}
+                slug={certification.id}
+                variant="destructive"
+              />
+            </div>
+          ))}
+          <Link passHref href="/admin/certifications">
+            <Button variant="primary">+ New Certification</Button>
+          </Link>
         </div>
 
         {/* Content Blocks */}

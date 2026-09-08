@@ -1,4 +1,11 @@
-import { User, Monitor, Pencil, FileText, MessageSquare } from "lucide-react";
+import {
+  User,
+  Monitor,
+  Pencil,
+  FileText,
+  MessageSquare,
+  Award,
+} from "lucide-react";
 
 export const MENU_ITEMS = [
   {
@@ -21,6 +28,13 @@ export const MENU_ITEMS = [
     desc: "Experience & timeline",
     href: "/experience",
     Icon: FileText,
+  },
+  {
+    id: "certifications",
+    label: "Achievements",
+    desc: "Certifications & badges",
+    href: "/certifications",
+    Icon: Award,
   },
   {
     id: "contact",

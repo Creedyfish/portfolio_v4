@@ -272,19 +272,19 @@ export type TechnologyWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   name?: string
   slug?: string
+  order?: number
   AND?: Prisma.TechnologyWhereInput | Prisma.TechnologyWhereInput[]
   OR?: Prisma.TechnologyWhereInput[]
   NOT?: Prisma.TechnologyWhereInput | Prisma.TechnologyWhereInput[]
   iconUrl?: Prisma.StringFilter<"Technology"> | string
   category?: Prisma.StringNullableFilter<"Technology"> | string | null
   description?: Prisma.StringNullableFilter<"Technology"> | string | null
-  order?: Prisma.IntFilter<"Technology"> | number
   createdAt?: Prisma.DateTimeFilter<"Technology"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Technology"> | Date | string
   projects?: Prisma.ProjectTechnologyListRelationFilter
   experiences?: Prisma.ExperienceTechnologyListRelationFilter
   skills?: Prisma.SkillListRelationFilter
-}, "id" | "name" | "slug">
+}, "id" | "name" | "slug" | "order">
 
 export type TechnologyOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -325,7 +325,7 @@ export type TechnologyCreateInput = {
   iconUrl: string
   category?: string | null
   description?: string | null
-  order?: number
+  order: number
   createdAt?: Date | string
   updatedAt?: Date | string
   projects?: Prisma.ProjectTechnologyCreateNestedManyWithoutTechnologyInput
@@ -340,7 +340,7 @@ export type TechnologyUncheckedCreateInput = {
   iconUrl: string
   category?: string | null
   description?: string | null
-  order?: number
+  order: number
   createdAt?: Date | string
   updatedAt?: Date | string
   projects?: Prisma.ProjectTechnologyUncheckedCreateNestedManyWithoutTechnologyInput
@@ -385,7 +385,7 @@ export type TechnologyCreateManyInput = {
   iconUrl: string
   category?: string | null
   description?: string | null
-  order?: number
+  order: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -520,7 +520,7 @@ export type TechnologyCreateWithoutProjectsInput = {
   iconUrl: string
   category?: string | null
   description?: string | null
-  order?: number
+  order: number
   createdAt?: Date | string
   updatedAt?: Date | string
   experiences?: Prisma.ExperienceTechnologyCreateNestedManyWithoutTechnologyInput
@@ -534,7 +534,7 @@ export type TechnologyUncheckedCreateWithoutProjectsInput = {
   iconUrl: string
   category?: string | null
   description?: string | null
-  order?: number
+  order: number
   createdAt?: Date | string
   updatedAt?: Date | string
   experiences?: Prisma.ExperienceTechnologyUncheckedCreateNestedManyWithoutTechnologyInput
@@ -592,7 +592,7 @@ export type TechnologyCreateWithoutExperiencesInput = {
   iconUrl: string
   category?: string | null
   description?: string | null
-  order?: number
+  order: number
   createdAt?: Date | string
   updatedAt?: Date | string
   projects?: Prisma.ProjectTechnologyCreateNestedManyWithoutTechnologyInput
@@ -606,7 +606,7 @@ export type TechnologyUncheckedCreateWithoutExperiencesInput = {
   iconUrl: string
   category?: string | null
   description?: string | null
-  order?: number
+  order: number
   createdAt?: Date | string
   updatedAt?: Date | string
   projects?: Prisma.ProjectTechnologyUncheckedCreateNestedManyWithoutTechnologyInput
@@ -664,7 +664,7 @@ export type TechnologyCreateWithoutSkillsInput = {
   iconUrl: string
   category?: string | null
   description?: string | null
-  order?: number
+  order: number
   createdAt?: Date | string
   updatedAt?: Date | string
   projects?: Prisma.ProjectTechnologyCreateNestedManyWithoutTechnologyInput
@@ -678,7 +678,7 @@ export type TechnologyUncheckedCreateWithoutSkillsInput = {
   iconUrl: string
   category?: string | null
   description?: string | null
-  order?: number
+  order: number
   createdAt?: Date | string
   updatedAt?: Date | string
   projects?: Prisma.ProjectTechnologyUncheckedCreateNestedManyWithoutTechnologyInput

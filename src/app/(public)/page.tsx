@@ -6,6 +6,7 @@ import AboutContent from "@/features/landing/components/AboutContent";
 import ProjectsContent from "@/features/landing/components/ProjectsContent";
 import SkillsContent from "@/features/landing/components/SkillsContent";
 import ExperienceContent from "@/features/landing/components/ExperienceContent";
+import CertificationsContent from "@/features/landing/components/CertificationsContent";
 import ContactContent from "@/features/landing/components/ContactContent";
 export const revalidate = 60;
 
@@ -37,6 +38,11 @@ export default async function HomePage() {
     experience: (
       <Suspense fallback={<LoadingState />}>
         <ExperienceContent />
+      </Suspense>
+    ),
+    certifications: (
+      <Suspense fallback={<LoadingState />}>
+        <CertificationsContent />
       </Suspense>
     ),
     contact: (

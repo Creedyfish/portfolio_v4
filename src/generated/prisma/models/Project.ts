@@ -312,6 +312,7 @@ export type ProjectOrderByWithRelationInput = {
 export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   slug?: string
+  order?: number
   AND?: Prisma.ProjectWhereInput | Prisma.ProjectWhereInput[]
   OR?: Prisma.ProjectWhereInput[]
   NOT?: Prisma.ProjectWhereInput | Prisma.ProjectWhereInput[]
@@ -324,11 +325,10 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   liveUrl?: Prisma.StringNullableFilter<"Project"> | string | null
   featured?: Prisma.BoolFilter<"Project"> | boolean
   published?: Prisma.BoolFilter<"Project"> | boolean
-  order?: Prisma.IntFilter<"Project"> | number
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   technologies?: Prisma.ProjectTechnologyListRelationFilter
-}, "id" | "slug">
+}, "id" | "slug" | "order">
 
 export type ProjectOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -384,7 +384,7 @@ export type ProjectCreateInput = {
   liveUrl?: string | null
   featured?: boolean
   published?: boolean
-  order?: number
+  order: number
   createdAt?: Date | string
   updatedAt?: Date | string
   technologies?: Prisma.ProjectTechnologyCreateNestedManyWithoutProjectInput
@@ -402,7 +402,7 @@ export type ProjectUncheckedCreateInput = {
   liveUrl?: string | null
   featured?: boolean
   published?: boolean
-  order?: number
+  order: number
   createdAt?: Date | string
   updatedAt?: Date | string
   technologies?: Prisma.ProjectTechnologyUncheckedCreateNestedManyWithoutProjectInput
@@ -456,7 +456,7 @@ export type ProjectCreateManyInput = {
   liveUrl?: string | null
   featured?: boolean
   published?: boolean
-  order?: number
+  order: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -589,7 +589,7 @@ export type ProjectCreateWithoutTechnologiesInput = {
   liveUrl?: string | null
   featured?: boolean
   published?: boolean
-  order?: number
+  order: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -606,7 +606,7 @@ export type ProjectUncheckedCreateWithoutTechnologiesInput = {
   liveUrl?: string | null
   featured?: boolean
   published?: boolean
-  order?: number
+  order: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
